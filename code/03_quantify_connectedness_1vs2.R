@@ -5,11 +5,6 @@ require(dplyr)
 require(Matrix.utils)
 source("00_functions.R")
 
-# update this based on your computer
-# https://figshare.com/articles/dataset/ReDeeM_raw_mutation_calling/24418966/1
-# Directory should have these files from the published paper
-base_dir <- "/Users/lareauc/Downloads/redeem-downloaded/mito_data_redeem/"
-
 # example
 id = "Young1.T1.BMMC"
 
@@ -23,7 +18,6 @@ analyze_connectivity_impact <- function(id){
   
   # Append the variants that Chen manually filters out already as homoplasmic
   # so they aren't in the matrix
-  bad_vars_cw <- c("310_T_C","3109_T_C","309_C_T", "5764_C_T") # variants that we agree are bad / already filtered; pretend these are homoplasmic to remove
   redeemR@HomoVariants <- c(redeemR@HomoVariants, bad_vars_cw)
   
   # Create matrix using redeem functions

@@ -7,11 +7,6 @@ library(BuenColors)
 # Script that calls the sensitive variants from the 
 # redeem object for ease of use in downstream analyses
 
-# update this based on your computer
-# https://figshare.com/articles/dataset/ReDeeM_raw_mutation_calling/24418966/1
-# Directory should have these files from the published paper
-base_dir <- "/Users/lareauc/Downloads/redeem-downloaded/mito_data_redeem/"  
-
 possible <- list.files(base_dir)
 
 process_set <- function(id, thr_one = "S"){

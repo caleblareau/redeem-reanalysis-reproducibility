@@ -6,6 +6,16 @@ library(tidyr)
 library(purrr)
 library(BuenColors)
 
+
+# update this based on your computer
+# https://figshare.com/articles/dataset/ReDeeM_raw_mutation_calling/24418966/1
+# Directory should have files from the published paper downloaded from figshare
+base_dir <- "/Users/lareauc/Dropbox/redeem/redeem-downloaded/mito_data_redeem/"  
+
+# variants that we agree are bad / already filtered
+bad_vars_cw <- c("310_T_C","3109_T_C","309_C_T", "5764_C_T") 
+
+
 ## Helper functions 
 ## loading packages
 

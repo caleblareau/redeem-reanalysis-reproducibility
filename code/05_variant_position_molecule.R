@@ -1,12 +1,6 @@
 library(BuenColors)
 source("00_functions.R")
 
-
-# update this based on your computer
-# https://figshare.com/articles/dataset/ReDeeM_raw_mutation_calling/24418966/1
-# Directory should have these files from the published paper
-base_dir <- "/Users/lareauc/Downloads/redeem-downloaded/mito_data_redeem/"
-
 # Main Function that processes summary counts
 process_one_sample <- function(sample_id){
   
