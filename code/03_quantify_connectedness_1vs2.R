@@ -1,0 +1,77 @@
+library(data.table)
+library(dplyr)
+library(redeemR)
+require(dplyr)
+require(Matrix.utils)
+source("00_functions.R")
+
+# update this based on your computer
+# https://figshare.com/articles/dataset/ReDeeM_raw_mutation_calling/24418966/1
+# Directory should have these files from the published paper
+base_dir <- "/Users/lareauc/Downloads/redeem-downloaded/mito_data_redeem/"
+
+# example
+id = "Young1.T1.BMMC"
+
+analyze_connectivity_impact <- function(id){
+  print(id)
+  WD <-  paste0(base_dir, id, ".Consensus.final/") # CL specific working directory
+  
+  # Import data based on reproducibility notebook
+  redeemR<-Create_redeemR(redeemR.read(path=WD,thr="S",Processed=F,rdsname = "/new.VariantsGTSummary.RDS"))
+  redeemR@HomoVariants <- (redeemR@V.fitered %>% filter(totalVAF > 0.35) %>% pull(Variants)) # Variants in Old 2 that are at 40%
+  
+  # Append the variants that Chen manually filters out already as homoplasmic
+  # so they aren't in the matrix
+  bad_vars_cw <- c("310_T_C","3109_T_C","309_C_T", "5764_C_T") # variants that we agree are bad / already filtered; pretend these are homoplasmic to remove
+  redeemR@HomoVariants <- c(redeemR@HomoVariants, bad_vars_cw)
+  
+  # Create matrix using redeem functions
+  redeemR <- Make_matrix(redeemR)
+  
+  
+  ## Filter low coverage cells
+  BadCells<-subset(redeemR@CellMeta,meanCov<10)$Cell
+  keep_cells <- !(rownames(redeemR@Cts.Mtx.bi) %in% BadCells)
+
+  # Now compute the binary matrix under two sets of circumstances
+  # https://github.com/chenweng1991/redeemR/blob/master/R/BuidTree.R#L237
+
+  Cts.Mtx.bin1 <- redeemR@Cts.Mtx[keep_cells,]
+  Cts.Mtx.bin1[Cts.Mtx.bin1>=1]<-1
+
+  Cts.Mtx.bin2 <- redeemR@Cts.Mtx[keep_cells,]
+  Cts.Mtx.bin2[Cts.Mtx.bin2 <= 1]<-0
+  Cts.Mtx.bin2[Cts.Mtx.bin2 >= 2]<-1
+  
+  # Now compute cell - cell connectivity
+  # Use matrix multiplication approach from CW: https://github.com/chenweng1991/redeem_reproducibility/blob/master/Issue%231.ipynb
+
+  cell_cell_connectivity1 <- (Cts.Mtx.bin1 %*% t(Cts.Mtx.bin1)) >= 2
+  diag(cell_cell_connectivity1) <- 0
+  
+  cell_cell_connectivity2 <- (Cts.Mtx.bin2 %*% t(Cts.Mtx.bin2)) >= 2
+  diag(cell_cell_connectivity2) <- 0
+
+  # Summarize what happens
+  pct_connections_lost <- (sum(cell_cell_connectivity1) - sum(cell_cell_connectivity2))/sum(cell_cell_connectivity1)*100
+  
+  data.frame(id, 
+             original_connections = sum(cell_cell_connectivity1),
+             connections_after_filter = sum(cell_cell_connectivity2),
+             pct_connections_lost = round(pct_connections_lost, 2))
+}
+
+lapply(c("Young1.T1.BMMC", "Youn2.BMMC", "Old1.BMMC", "Old2.BMMC"), function(x){
+  analyze_connectivity_impact(x)
+}) %>% rbindlist() %>% data.frame() -> pct_df12
+
+pX <- pct_df12 %>%
+  ggplot(aes(x = id, y = pct_connections_lost)) + 
+  geom_bar(stat = "identity", color = "black", fill = "lightgrey", width = 0.6) + 
+  pretty_plot(fontsize = 7) + L_border() + 
+  scale_y_continuous(expand = c(0,0), limits = c(0, 100)) + 
+  labs(x = "", y = "% connectivity lost")
+cowplot::ggsave2(pX, file = "../final_plots/connectivity_lost.pdf", width = 1.4, height = 1)
+
+
