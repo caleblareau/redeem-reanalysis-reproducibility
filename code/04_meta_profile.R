@@ -86,13 +86,13 @@ process_one <- function(sample_id){
   }
  data.frame(
    what = c("mgatk", "homoplasmic", "redeem_low"),
-   value = round(c(get_edgeFC(p3), get_egdeFC(p4), get_egdeFC(p2)), 2)
+   value = round(c(get_edgeFC(p3), get_edgeFC(p4), get_edgeFC(p2)), 2)
  ) 
   
 }
 
-process_one( "Young1.T1.BMMC")
-process_one( "Old1.BMMC")
-process_one( "Youn2.BMMC")
-process_one( "Old2.BMMC")
+process_one( "Young1.T1.BMMC") # 
+process_one( "Old1.BMMC") # 
+process_one( "Youn2.BMMC") # 
+process_one( "Old2.BMMC") # 
 

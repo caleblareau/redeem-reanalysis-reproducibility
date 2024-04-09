@@ -6,6 +6,10 @@ library(tidyr)
 library(purrr)
 library(BuenColors)
 
+# Global: import mutation weights for jaccard statistic
+data(CellPCT)
+V.weight <- data.frame(weight=1-CellPCT$muRate)
+V.weight$Variants <- paste0("Variants",gsub("_","",CellPCT$Variant))
 
 # update this based on your computer
 # https://figshare.com/articles/dataset/ReDeeM_raw_mutation_calling/24418966/1
