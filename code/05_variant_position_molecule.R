@@ -91,34 +91,52 @@ V.weight$Variants <- paste0("Variants",gsub("_","",CellPCT$Variant))
 V.weight %>% 
   filter(Variants %in% c("Variants2AG", "Variants3TA", "Variants4CT"))
 
-# These variants always co-occur on the same molecule
-redeemV_data_Y2 <- fread(paste0(base_dir,"Youn2.BMMC",".Consensus.final/RawGenotypes.Sensitive.StrandBalance")) 
-redeemV_data_Y2 %>%
-  filter(V4 %in% c("2_A_G", "3_T_A", "4_C_T")) 
+# Import Y2
+sample_id <- "Old2.BMMC"
+redeemV_data_d <- fread(paste0(base_dir,sample_id,".Consensus.final/RawGenotypes.Sensitive.StrandBalance")) 
+redeem_df <- fread(paste0("../data/redeem-sensitive-calls/",sample_id,".Consensus.final_S.tsv"))
+redeemV_data_d <- redeemV_data_d %>% filter(V4 %in% redeem_df$Variants)
 
-redeemV_data_Y2 %>%
-  filter(V4 %in% "6293_T_C") %>% make_position_df()
+# count me
+count_me <- redeemV_data_d %>% group_by(V2, V4) %>% summarize(count = n())
+variant_meta <- count_me %>% group_by(V4) %>%
+  summarize(pct_1 = mean(count == 1), max = max(count), n1 = sum(count == 1))
+variant_meta %>% 
+  filter(n1 > 20) %>% 
+  filter(max > 30) %>%
+  arrange(desc(pct_1))
 
-# 80 cells with 1 observation
-# 1 cells with 3 observations
-# 1 cell with 21 observations
-redeemV_data_Y2 %>%
-  filter(V4 %in% "6293_T_C") %>% pull(V2) %>% table() %>% table()
+# Function to make pairs of plots
+process_variant <- function(var1){
+  table_var <- redeemV_data_d %>%
+    filter(V4 %in% var1) %>% pull(V2) %>% table() 
+  
+  cells1 <- names(table_var[table_var == 1])
+  cells3p <- names(table_var[table_var >= 3])
+  
+  # Real mutation call in one cell with 21 reads and another with 3 look good
+  p1 <- redeemV_data_d %>%
+    filter(V4 %in% var1) %>% filter(V2  %in% cells3p) %>%
+    make_position_df() %>%
+    ggplot(aes( x = rel_position)) +
+    geom_histogram(bins = 30) + pretty_plot(fontsize= 6) + 
+    theme(plot.title = element_text(size = 6)) + labs(x = "Position on molecule", y = "count") + 
+    ggtitle(paste0(sample_id, " | ", length(cells3p), " cell(s) where ",var1," has 3+ alt_alleles"))
+  
+  # Now look at the other ones with only 1 read
+  p2 <- redeemV_data_d %>%
+    filter(V4 %in% var1) %>% filter((V2 %in%cells1)) %>% 
+    make_position_df() %>%
+    ggplot(aes( x = rel_position)) +
+    geom_histogram(bins = 30) + pretty_plot(fontsize= 6) + 
+    theme(plot.title = element_text(size = 6)) + labs(x = "Position on molecule", y = "count") + 
+    ggtitle(paste0(sample_id, " | ",length(cells1), " cells where ",var1," has exactly 1 alt_allele"))
+  cowplot::ggsave2(cowplot::plot_grid(p1, p2, nrow = 1), 
+                   width = 6, height = 2.5, file = paste0("../plots_split/individual_var/", sample_id, "_", var1, ".pdf"))
+  var1
+}
 
-# Real mutation call in one cell with 21 reads and another with 3 look good
-redeemV_data_Y2 %>%
-  filter(V4 %in% "6293_T_C") %>% filter(V2  %in% c("ACGCTAACACGCCCAT", "GTCTTAGTCCCTCGTC")) %>%
-  make_position_df() %>%
-  ggplot(aes( x = rel_position)) +
-  geom_histogram(bins = 30) + theme_bw() + ggtitle("2 cells where 6293 is real")
-
-# Now look at the other 80
-redeemV_data_Y2 %>%
-  filter(V4 %in% "6293_T_C") %>% filter(!(V2 %in% c("ACGCTAACACGCCCAT", "GTCTTAGTCCCTCGTC"))) %>% 
-  make_position_df() %>%
-  ggplot(aes( x = rel_position)) +
-  geom_histogram(bins = 30) + theme_bw() + ggtitle("80 cells where 6293 is probably an artifact")
-
-
-
+process_variant("15043_G_A")
+process_variant("7063_T_C")
+process_variant("940_A_G")
 

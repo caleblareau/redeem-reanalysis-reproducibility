@@ -46,6 +46,29 @@ process_one_sample <- function(sample_id){
     filter(!c(V4 %in% bad_vars_cw) & !c(V4 %in% very_high)) %>%
     make_position_df()
   
+  
+  # Look at the proportion of each variant type
+  var_lmhc <- unique(sum_stats_redeem_lmhc$variant)
+  df_lmhc <- data.frame(
+    table(substr(var_lmhc, nchar(var_lmhc)-2, nchar(var_lmhc)))
+  ) %>% mutate(lmhc_pct = round(Freq/length(var_lmhc)*100, 1))
+  
+  var_mgatk <- unique(sum_stats_mgatk$variant)
+  df_mgatk <- data.frame(
+    table(substr(var_mgatk, nchar(var_mgatk)-2, nchar(var_mgatk)))
+  ) %>% mutate(mgatk_pct = round(Freq/length(var_mgatk)*100, 1))
+  
+  # Merge the two data frames
+  mdf <- merge(df_lmhc[,c(1,3)], df_mgatk[,c(1,3)], by = "Var1", all = TRUE)
+  mdf[is.na(mdf)] <-  0
+  mdf$transition <- mdf$Var1 %in% c("A_G", "C_T", "T_C", "G_A")
+  mdf$variant <- gsub("_", ">", mdf$Var1)
+  ggplot(mdf %>% reshape2::melt(id.vars = c("Var1", "variant", "transition")), 
+         aes(x = variable, y = value, fill = transition)) +
+    geom_bar(stat = "identity")
+  print(paste0("# mgatk vars: ", length(var_mgatk)))
+  print(paste0("# lmhc vars: ", length(var_lmhc)))
+  
   # do KS tests on all variants
   redeem_others_df_ks <- sum_stats_redeem_others %>% make_ks_test_df
   redeem_LMHC_df_ks <- sum_stats_redeem_lmhc %>% make_ks_test_df

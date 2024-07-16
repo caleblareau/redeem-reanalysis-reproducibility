@@ -50,4 +50,16 @@ make_ks_test_df <- function(var_df){
     dplyr::select(variant, statistic, p.value, n)
 }
 
+# Function modified from here: https://github.com/chenweng1991/redeemR/blob/93332c648b5cd9310609271da3a199e9e9f98167/R/BuidTree.R#L919
+quick_w_jaccard_cl<-function(M,w){ 
+  total<-M %*% w
+  a<-M %*% (Matrix::t(M)*w)
+  b<-as.numeric(total) - a
+  c<-Matrix::t(b)
+  disimilarity<-round(1-a/(a+b+c+0.00001),4)
+  distance<-as.dist(disimilarity)
+  
+  return(disimilarity)
+}
+
 

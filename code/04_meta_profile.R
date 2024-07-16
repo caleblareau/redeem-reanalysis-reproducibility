@@ -76,17 +76,23 @@ process_one <- function(sample_id){
     geom_histogram(bins = 51, fill = "darkgrey") +
     labs(x = "position on molecule", y = "count of alternate allele") + pretty_plot(fontsize = 6)+ L_border()
   
-  cowplot::ggsave2(cowplot::plot_grid(p1, p4, p3, p2, nrow = 1), 
-                   width = 5.5, height = 1.1, file = paste0("../final_plots/", sample_id, "_plots.pdf"))
+  #cowplot::ggsave2(cowplot::plot_grid(p1, p4, p3, p2, nrow = 1), 
+  #                 width = 5.5, height = 1.1, file = paste0("../final_plots/", sample_id, "_plots.pdf"))
   
   # Pull data out
   get_edgeFC <- function(ggploto){
     df <-  ggplot_build(ggploto)$data[[1]]
     mean(df[c(1:3, 49,50,51),"y"])/mean(df[c(4:48),"y"])
   }
+  get_edge_perc <- function(ggploto){
+    df <-  ggplot_build(ggploto)$data[[1]]
+    sum(df[c(1:3, 49,50,51),"y"])/sum(df[,"y"])*100
+  }
  data.frame(
    what = c("mgatk", "homoplasmic", "redeem_low"),
-   value = round(c(get_edgeFC(p3), get_edgeFC(p4), get_edgeFC(p2)), 2)
+   value = round(c(get_edgeFC(p3), get_edgeFC(p4), get_edgeFC(p2)), 2),
+   percent_edge = round(c(get_edge_perc(p3), get_edge_perc(p4), get_edge_perc(p2)), 2)
+   
  ) 
   
 }
