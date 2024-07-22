@@ -19,6 +19,12 @@ base_dir <- "/Users/lareauc/Dropbox/redeem/redeem-downloaded/mito_data_redeem/"
 # variants that we agree are bad / already filtered
 bad_vars_cw <- c("310_T_C","3109_T_C","309_C_T", "5764_C_T") 
 
+Variants_to_underscores <- function(vector_of_vars){
+  vector_of_vars <- gsub("Variants", "", vector_of_vars)
+  paste0(substr(vector_of_vars, 1, nchar(vector_of_vars)-2), "_", 
+         substr(vector_of_vars, nchar(vector_of_vars)-1, nchar(vector_of_vars)-1), "_", 
+         substr(vector_of_vars, nchar(vector_of_vars), nchar(vector_of_vars)))
+}
 
 ## Helper functions 
 ## loading packages
