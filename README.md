@@ -91,12 +91,20 @@ visualization of the tree pre/post is available here: `code/22_viz_tree.R`.
 
 ### KS testing for position bias 
 
-`code/06_biased_rate-split.R`. 
+The script for computing this metric per variant is contained here: `code/06_biased_rate-split.R`. 
 
 ## Edge accumulations
 
 The enrichment of transversions at the edge of molecules as a function of eUMI depth is found at
-`code/09_what_nucleotide_changes.R` and the overall mismatches are 
+`code/08_visualize_edge_classification.R`  and the overall mismatches as a function of mutation type
+are available at `code/09_what_nucleotide_changes.R`. 
+
+## MQuad
+
+We adapted the [MQuad](https://www.nature.com/articles/s41467-022-28845-0) workflow for 
+compatibility with the ReDeeM data structure. Code to generate the input AD and DP matrices
+is available `code/11_export_mquad.R` and for visualizing the MQuad results is `code/12_viz_mquad_pb.R`.
+
 
 ### Mouse and extended donor analyses
 
