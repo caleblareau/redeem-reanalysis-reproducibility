@@ -3,7 +3,7 @@
 Repository for reproducing followup analyses of the ReDeeM manuscript. 
 This repository assumes the input of the processed data from the authors (as well as other
 public datasets) and can be used with the code here to reproduce the summary statistics
-and figure panels in the _bioRxiv_ response paper. 
+and figure panels in the _bioRxiv_ [response paper](https://www.biorxiv.org/content/10.1101/2024.07.28.605517v1).
 
 
 # Setup
@@ -67,7 +67,14 @@ place the files in `redeem-downloaded/mito_data_redeem`.
 - For the extended donors, download the processed data from [this GEO accession](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE261078)
 and place the folders (with the .txt files gzipped) in the `redeem-downloaded/mito_data_redeem/GSE261078_downloaded`
 
-# Key scripts for reanalysis
+## Key scripts for reanalysis of ReDeeM data
+
+### Sourcing downloaded data on your computer
+
+There is a key variable called `base_dir` on [line 17](https://github.com/caleblareau/redeem-reanalysis-reproducibility/blob/main/code/00_functions.R#L17) 
+of script `code/00_functions.R` that
+specifies a hard path to where `redeem-downloaded` lives. Update this depending on where
+you have stashed the files above. 
 
 ### Connectivity quantifications
 
@@ -93,13 +100,13 @@ visualization of the tree pre/post is available here: `code/22_viz_tree.R`.
 
 The script for computing this metric per variant is contained here: `code/06_biased_rate-split.R`. 
 
-## Edge accumulations
+###  Edge accumulations
 
 The enrichment of transversions at the edge of molecules as a function of eUMI depth is found at
 `code/08_visualize_edge_classification.R`  and the overall mismatches as a function of mutation type
 are available at `code/09_what_nucleotide_changes.R`. 
 
-## MQuad
+### MQuad
 
 We adapted the [MQuad](https://www.nature.com/articles/s41467-022-28845-0) workflow for 
 compatibility with the ReDeeM data structure. Code to generate the input AD and DP matrices
@@ -120,6 +127,14 @@ To assess whether the edge mismatch accumulation occurs in stanadrd ATAC-seq, pu
 bulk ATAC and single-cell multiome analyses occur in `10x-snATAC-multiome`. Further, we
 quantify the edge mismatches from the ATAC library upstream of the ReDeeM enrichment 
 in `code/05a_variant_position_atac.R`.
+
+## Comparing ReDeeM -1 and -2
+_updated August 28, 2024_
+Code to directly compare ReDeeM filter -1 and -2 head-to-head are shown here:
+- Connectedness (`code/31_quantify_connectedness_trim_v1_v2.R`)
+- kNN under permutation (`code/32_permuted_KNN.R`)
+- Tree building / comparison (`code/33_explore_v2_trees.R`)
+- Quantifying Tree MRCA (`code/34_quantify_MRCA.R`)
 
 
 
